@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import os
 from parser import extract_text_from_pdf, clean_extracted_text
 from rag import build_query_engine
@@ -66,3 +67,27 @@ async def upload_file(file: UploadFile = File(...)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class ChatRequest(BaseModel):
+    question: str
+
+@app.post("/chat")
+async def chat_with_invoice(request: ChatRequest):
+    """
+    Endpoint for querying the LlamaIndex engine.
+    """
+    if app.state.query_engine is None:
+        raise HTTPException(status_code=400, detail="No invoice uploaded. Please upload a PDF first.")
+    
+    try:
+        print(f"--- Received Query: {request.question} ---")
+        
+        # Send the string query directly to our LlamaIndex query engine
+        response = app.state.query_engine.query(request.question)
+        
+        print(f"--- AI Answer: {response.response} ---")
+        return {"answer": response.response}
+        
+    except Exception as e:
+         print(f"Error during query: {e}")
+         raise HTTPException(status_code=500, detail="Failed to query the AI Brain.")
