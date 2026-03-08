@@ -18,11 +18,11 @@ def configure_llama_index_settings():
     if not api_key or api_key == "your_gemini_api_key_here":
          raise ValueError("GOOGLE_API_KEY is not set in the .env file")
     
-    # Configure the Gemini LLM (flash is fast and cheap for this)
-    llm = Gemini(model="models/gemini-3.0-flash-exp", api_key=api_key)
+    # Configure the Gemini LLM
+    llm = Gemini(model="models/gemini-2.0-flash", api_key=api_key)
     
     # Configure the Gemini Embedding model
-    embed_model = GeminiEmbedding(model_name="models/text-embedding-004-exp", api_key=api_key)
+    embed_model = GeminiEmbedding(model_name="models/text-embedding-004", api_key=api_key)
     
     # Set the globals in Settings
     Settings.llm = llm
